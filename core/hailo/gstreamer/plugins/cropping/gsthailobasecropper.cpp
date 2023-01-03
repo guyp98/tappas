@@ -18,6 +18,7 @@
 #include "hailo_common.hpp"
 #include "gst_hailo_meta.hpp"
 
+
 GST_DEBUG_CATEGORY_STATIC(gst_hailo_basecropper_debug);
 #define GST_CAT_DEFAULT gst_hailo_basecropper_debug
 
@@ -345,9 +346,13 @@ static GstBuffer *handle_one_crop(GstHailoBaseCropper *hailo_basecropper, GstBuf
     rect.height = CLAMP(bbox.height() * full_image->height(), 0, full_image->height() - rect.y);
     cv::Mat cropped_cv_mat = full_image->get_mat()(rect);
     cv::Mat &resized_cv_mat = resized_image->get_mat();
+    
+    if ((resized_cv_mat.cols != cropped_cv_mat.cols ) || (resized_cv_mat.rows != cropped_cv_mat.rows)){
+        GST_ELEMENT_ERROR(hailo_basecropper, STREAM, FAILED, ("\nThe tile size expected: %dx%d\nthe tile size got: %dx%d\n",resized_cv_mat.cols,resized_cv_mat.rows,cropped_cv_mat.cols,cropped_cv_mat.rows), (NULL));
+    }
     // Crop and resize the the frame
     hailo_basecropperclass->resize(hailo_basecropper, cropped_cv_mat, resized_cv_mat, crop_roi, image_format);
-
+    
     // Add the croopped ROI to the buffer
     gst_buffer_add_hailo_meta(cropped_buf, crop_roi);
 
@@ -625,3 +630,4 @@ void resize_letterbox(GstHailoBaseCropper *basecropper, cv::Mat &cropped_image, 
     }
     }
 }
+

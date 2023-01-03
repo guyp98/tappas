@@ -80,11 +80,12 @@ public:
      * @return uint8_t value of this tensor at the specified place.
      * @note number is quantized.
      */
+    
     uint8_t get(uint row, uint col, uint channel)
     {
-        uint height = m_vstream_info.shape.height;
+        uint width = m_vstream_info.shape.width;
         uint features = m_vstream_info.shape.features;
-        int pos = (height * features) * row + features * col + channel;
+        int pos = (width * features) * row + features * col + channel;
         return m_data[pos];
     }
     /**
@@ -102,3 +103,4 @@ public:
 };
 
 using HailoTensorPtr = std::shared_ptr<HailoTensor>;
+
